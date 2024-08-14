@@ -18,6 +18,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import '../css/app.css';
 import Home from './components/Home';
+import ExchangeRatesView from './components/ExchangeRatesView';
 
-ReactDOM.render(<Router><Home /></Router>, document.getElementById('root'));
+ReactDOM.render(<Router><Home /><ExchangeRatesView /></Router>, document.getElementById('root'));
 
