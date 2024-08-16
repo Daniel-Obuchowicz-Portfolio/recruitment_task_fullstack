@@ -7,16 +7,30 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ExchangeRateService
 {
     private const API_URL = 'https://api.nbp.pl/api/exchangerates/rates/A';
-    
-    private $httpClient;
 
-    public function __construct(HttpClientInterface $httpClient)
-    {
+    private $httpClient;
+    private $validator;
+    private $rateCalculatorFactory;
+
+    public function __construct(
+        HttpClientInterface $httpClient,
+        InputValidator $validator,  // Zamiast "validator", używamy konkretnego InputValidator
+        RateCalculatorFactory $rateCalculatorFactory
+    ) {
         $this->httpClient = $httpClient;
+        $this->validator = $validator;
+        $this->rateCalculatorFactory = $rateCalculatorFactory;
     }
 
     public function getExchangeRates(string $startDate, string $endDate, array $currencies): array
     {
+        // Walidacja danych wejściowych
+        $errors = $this->validator->validate($startDate, $endDate, $currencies);
+
+        if (!empty($errors)) {
+            return ['errors' => $errors];
+        }
+
         $results = [];
 
         foreach ($currencies as $currency) {
@@ -31,20 +45,13 @@ class ExchangeRateService
                         $averageRate = $rateData['mid'];
                         $date = $rateData['effectiveDate'];
 
-                        $buyRate = null;
-                        $sellRate = $averageRate + 0.15;
+                        $rateCalculator = $this->rateCalculatorFactory->getCalculator($currency);
+                        $rates = $rateCalculator->calculate($averageRate);
 
-                        if (in_array($currency, ['EUR', 'USD'])) {
-                            $buyRate = $averageRate - 0.05;
-                            $sellRate = $averageRate + 0.07;
-                        }
-
-                        $results[$date][$currency] = [
-                            'currency' => $currency,
-                            'averageRate' => $averageRate,
-                            'buyRate' => $buyRate,
-                            'sellRate' => $sellRate,
-                        ];
+                        $results[$date][$currency] = array_merge(
+                            ['currency' => $currency, 'averageRate' => $averageRate],
+                            $rates
+                        );
                     }
                 } else {
                     throw new \Exception("Error fetching data for {$currency} between {$startDate} and {$endDate}");

@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+body{
+    font-family: "Lato", sans-serif;
+    font-optical-sizing: auto;
+}
 .date-picker-container {
     display: flex;
     justify-content: space-between;
@@ -6,6 +12,10 @@
     margin-bottom: 2rem;
     background-color: #e9ecef;
     border-radius: .3rem;
+}
+
+.btn{
+    line-height: 1;
 }
 
 .btn-primary {
@@ -73,11 +83,6 @@
     margin-bottom: 15px;
 }
 
-p {
-    font-size: 1rem;
-    color: #666;
-}
-
 .footer {
     width: 100%;
     height: 60px;
@@ -141,4 +146,80 @@ p {
     font-size: 26px;
     font-weight: bold;
     margin: 0;
+}
+
+.custom-close {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-close .close-line {
+    position: absolute;
+}
+
+.custom-close {
+    font-size: 22px;
+}
+
+@media(max-width: 992px) {
+    .block{
+        display: block!important;
+    }
+    .mmt-2{
+        margin-top: 2rem;
+    }
+    .mal{
+        padding: 1rem!important;
+    }
+
+    .fin{
+        gap: 1rem;
+        display: grid!important;
+        margin: 0px 30px !important;
+        width: auto;
+    }
+
+    .container-custom h1{
+        padding: 0px 30px!important;
+    }
+
+    .container-custom .jumbotron{
+        margin: 0px 30px !important;
+        width: auto;
+    }
+
+    .container-custom .jumbotron .col-md-12 .gap-5.block{
+        display: grid!important;
+        grid-template-columns: auto auto auto;
+    }
+    .container-custom .jumbotron .gap-5.block .btn{
+        margin: 5px 0px;
+    }
+    .container-custom .data-section .result-count{
+        margin: 30px !important;
+        width: auto;
+    }
+    .container-custom .data-section .container h5{
+        margin: 30px !important;
+        width: auto;
+    }
+    .mal{
+        margin: 0!important;
+    }
+    .container-custom .data-section .container h5.card-title {
+        margin: 30px 0px !important;
+    }
+    .hide{
+        display: none;
+    }
 }

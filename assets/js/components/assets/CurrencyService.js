@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = 'http://telemedi-zadanie.localhost/api/exchange-rates';
+const apiUrl = `${window.location.origin}/api/exchange-rates`;
 
 export const getExchangeRates = async (start, end) => {
     try {
