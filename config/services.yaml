@@ -28,3 +28,19 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Controller\ExchangeRatesController:
+        arguments:
+            $exchangeRateService: '@App\Service\ExchangeRateService'
+
+    App\Service\ExchangeRateService:
+        arguments:
+            $rateCalculatorFactory: '@App\Service\RateCalculatorFactory'
+
+    App\Service\InputValidator: ~
+    App\Service\RateCalculatorFactory:
+        arguments:
+            $defaultRateCalculator: '@App\Service\DefaultRateCalculator'
+            $eurUsdRateCalculator: '@App\Service\EurUsdRateCalculator'
+
+    App\Service\DefaultRateCalculator: ~
+    App\Service\EurUsdRateCalculator: ~

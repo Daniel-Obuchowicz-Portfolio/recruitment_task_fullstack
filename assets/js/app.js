@@ -11,13 +11,30 @@
 // start the Stimulus application
 //import './bootstrap';
 
-
-
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 import '../css/app.css';
 import Home from './components/Home';
+import SetupCheck from "./components/SetupCheck";
+import ExchangeRatesView from './components/ExchangeRatesView';
 
-ReactDOM.render(<Router><Home /></Router>, document.getElementById('root'));
-
+ReactDOM.render(
+  <Router>
+    <div>
+      {/* Home jako nagłówek */}
+      <Home />
+      
+      {/* Główne trasy */}
+      <Switch>
+        <Route exact path="/">
+          <Redirect to="/setup-check" />
+        </Route>
+        <Route path="/setup-check" component={SetupCheck} />
+        <Route path="/exchange-rates/:startDate/:endDate?" component={ExchangeRatesView} />
+        <Route path="/exchange-rates/" component={ExchangeRatesView} />
+      </Switch>
+    </div>
+  </Router>,
+  document.getElementById('root')
+);
