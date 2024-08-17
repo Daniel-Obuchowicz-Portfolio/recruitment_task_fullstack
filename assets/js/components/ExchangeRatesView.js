@@ -3,6 +3,18 @@ import { useParams, useHistory } from 'react-router-dom';
 import { useCurrencyData } from './assets/useCurrencyData';
 import MissingDatesInfo from './assets/MissingDatesInfo';
 import { formatDate } from './assets/dateUtils';
+import DateModeSelector from './assets/jumbotron/DateModeSelector';
+import StartDatePicker from './assets/jumbotron/StartDatePicker';
+import EndDatePicker from './assets/jumbotron/EndDatePicker';
+import SubmitButton from './assets/jumbotron/SubmitButton';
+import SortOrderSelector from './assets/jumbotron/SortOrderSelector';
+import PresetButtonGroup from './assets/jumbotron/PresetButtonGroup';
+import AlertBox from './assets/small/AlertBox';
+import NoDataContent from './assets/small/NoDataContent';
+import CurrencyCard from './assets/cards/CurrencyCard';
+import PaginationControls from './assets/small/PaginationControls';
+import Footer from './assets/footer/Footer';
+
 
 const currencyNames = {
     EUR: 'Euro',
@@ -153,24 +165,24 @@ const ExchangeRatesView = () => {
             .reduce((count, date) => {
                 return count + Object.keys(exchangeRates[date]).filter(currency => exchangeRates[date][currency]).length;
             }, 0);
-    
+
         // Calculate start and end indices for display
         const totalDisplayedBeforeCurrentPage = sortedRates
             .slice(0, (currentPage - 1) * itemsPerPage)
             .reduce((count, date) => {
                 return count + Object.keys(exchangeRates[date]).filter(currency => exchangeRates[date][currency]).length;
             }, 0);
-    
+
         const startIndex = totalDisplayedBeforeCurrentPage + 1;
         const endIndex = totalDisplayedBeforeCurrentPage + currentPageItems;
-    
+
         return (
             <h5>
                 Pokazuję <strong>{startIndex}-{endIndex}</strong> z <strong>{resultCount}</strong> elementów
             </h5>
         );
     };
-    
+
 
     const updateURLAndFetchData = (start, end) => {
         if (dateMode === 'range') {
@@ -231,6 +243,10 @@ const ExchangeRatesView = () => {
 
         return visiblePages;
     };
+    const handleSortOrderChange = (event) => {
+        setSortOrder(event.target.value);
+    };
+
 
     return (
         <div className="container-full mt-5">
@@ -240,86 +256,47 @@ const ExchangeRatesView = () => {
                 <div className="container date-picker-container jumbotron">
                     <div className='w-100 block'>
                         <div className="d-flex justify-center w-100 gap-5 block">
-                            <div className="form-group w-100 mb-0">
-                                <strong><label htmlFor="dateMode">Wybierz Tryb Daty:</label></strong>
-                                <select id="dateMode" className="form-control" value={dateMode} onChange={handleDateModeChange}>
-                                    <option value="single">Pojedynczy Dzień</option>
-                                    <option value="range">Zakres Dat</option>
-                                </select>
-                            </div>
-                            <div className="form-group w-100 mb-0">
-                                <strong><label htmlFor="startDate">{dateMode === 'single' ? 'Wybierz Datę:' : 'Wybierz Datę Początkową:'}</label></strong>
-                                <input
-                                    type="date"
-                                    id="startDate"
-                                    className="form-control"
-                                    value={selectedStartDate}
-                                    onChange={handleStartDateChange}
-                                    min="2023-01-01"
-                                    max={today}
-                                />
-                            </div>
-                            {dateMode === 'range' && (
-                                <div className="form-group w-100 mb-0">
-                                    <strong><label htmlFor="endDate">Wybierz Datę Końcową:</label></strong>
-                                    <input
-                                        type="date"
-                                        id="endDate"
-                                        className="form-control"
-                                        value={selectedEndDate}
-                                        onChange={handleEndDateChange}
-                                        min={selectedStartDate}
-                                        max={today}
-                                    />
-                                </div>
-                            )}
-                            <button className="btn btn-primary h-auto mmt-2" onClick={handleSubmit}>Zatwierdź</button>
+                            <DateModeSelector dateMode={dateMode} onDateModeChange={handleDateModeChange} />
+                            <StartDatePicker
+                                dateMode={dateMode}
+                                selectedStartDate={selectedStartDate}
+                                onStartDateChange={handleStartDateChange}
+                                today={today}
+                            />
+                            <EndDatePicker
+                                dateMode={dateMode}
+                                selectedEndDate={selectedEndDate}
+                                onEndDateChange={handleEndDateChange}
+                                selectedStartDate={selectedStartDate}
+                                today={today}
+                            />
+                            <SubmitButton onClick={handleSubmit} label="Submit" />
                         </div>
 
                         {/* Przyciski do presetów */}
 
                         <div className='row'>
-                            <div className='col-md-12'>
-                                 {/* Sort Order Selection */}
-                                {dateMode === 'range' && (
-                                        <div className="form-group mt-4">
-                                        <strong><label htmlFor="sortOrder">Sortuj według daty:</label></strong>
-                                        <select id="sortOrder" className="form-control" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-                                            <option value="asc">Rosnąco</option>
-                                            <option value="desc">Malejąco</option>
-                                        </select>
-                                    </div>
-                                )}
-                            </div>
-                            <div className='col-md-12'>
-                                <strong><label className='mt-4'>Na skróty:</label></strong>
-                                <div className="d-flex justify-center w-100 gap-5 block">
-                                    <button className={`btn btn-secondary ${activePreset === 'today' ? 'active' : ''}`} onClick={() => handlePresetDateClick('today')}>Dziś</button>
-                                    <button className={`btn btn-secondary ${activePreset === 'yesterday' ? 'active' : ''}`} onClick={() => handlePresetDateClick('yesterday')}>Wczoraj</button>
-                                    <button className={`btn btn-secondary ${activePreset === 'dayBeforeYesterday' ? 'active' : ''}`} onClick={() => handlePresetDateClick('dayBeforeYesterday')}>Przedwczoraj</button>
-                                    <button className={`btn btn-secondary ${activePreset === 'last7Days' ? 'active' : ''}`} onClick={() => handlePresetDateClick('last7Days')}>Ostatnie 7 dni</button>
-                                    <button className={`btn btn-secondary ${activePreset === 'lastMonth' ? 'active' : ''}`} onClick={() => handlePresetDateClick('lastMonth')}>Ostatni miesiąc</button>
-                                    <button className={`btn btn-secondary ${activePreset === 'lastYear' ? 'active' : ''}`} onClick={() => handlePresetDateClick('lastYear')}>Ostatni rok</button>
-                                </div>
-                            </div>
+                            <SortOrderSelector
+                                dateMode={dateMode}
+                                sortOrder={sortOrder}
+                                onSortOrderChange={handleSortOrderChange}
+                            />
+                            <PresetButtonGroup
+                                activePreset={activePreset}
+                                handlePresetDateClick={handlePresetDateClick}
+                            />
                         </div>
-                        
-                        
+
+
 
                     </div>
                 </div>
 
-                {showAlert && (
-                    <div className="container px-0">
-                        <div className="alert alert-danger p-4" role="alert">
-                            <h4 className="alert-heading">Błąd!</h4>
-                            <p className='mb-0'>Wprowadzono nieprawidłową datę. Została ustawiona dzisiejsza data: <strong>{today}</strong>.</p>
-                            <button type="button" className="btn-close custom-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setShowAlert(false)}>
-                                <i className="fa fa-times" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <AlertBox
+                    showAlert={showAlert}
+                    onClose={() => setShowAlert(false)}
+                    today={today}
+                />
 
                 {fetchedData && (
                     <div className="data-section">
@@ -337,112 +314,40 @@ const ExchangeRatesView = () => {
                                                 <div className="row">
                                                     {supportedCurrencies.map(currency =>
                                                         paginatedRates[date][currency] ? (
-                                                            <div className="col-md-4 mb-4" key={`${date}-${currency}`}>
-                                                                <div className="card currency-card p-0">
-                                                                    <div className="card-body">
-                                                                        <h5 className="card-title">{currency} ({currencyNames[currency]})</h5>
-                                                                        <table className="table table-bordered table-striped text-dark">
-                                                                            <tbody>
-                                                                                <tr>
-                                                                                    <td>Data</td>
-                                                                                    <td><strong>{formatDate(date)}</strong></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>Kurs NBP</td>
-                                                                                    <td><strong>{paginatedRates[date][currency]?.averageRate != null ? `${paginatedRates[date][currency].averageRate.toFixed(4)} PLN` : 'N/A PLN'}</strong></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>Kurs Kupna</td>
-                                                                                    <td><strong>{paginatedRates[date][currency]?.buyRate != null ? `${paginatedRates[date][currency].buyRate.toFixed(4)} PLN` : 'N/A PLN'}</strong></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td>Kurs Sprzedaży</td>
-                                                                                    <td><strong>{paginatedRates[date][currency]?.sellRate != null ? `${paginatedRates[date][currency].sellRate.toFixed(4)} PLN` : 'N/A PLN'}</strong></td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                            <CurrencyCard
+                                                                key={`${date}-${currency}`}
+                                                                date={date}
+                                                                currency={currency}
+                                                                currencyData={paginatedRates[date][currency]}
+                                                                currencyNames={currencyNames}
+                                                            />
                                                         ) : null
                                                     )}
                                                 </div>
                                             ) : (
-                                                <div className="" key={date}>
-                                                    <div className="no-data-content">
-                                                        <div className="icon-container">
-                                                            <span className="icon">!</span>
-                                                        </div>
-                                                        <div className="message-container">
-                                                            <h3>Brak informacji</h3>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <NoDataContent message="Brak informacji" />
                                             )}
                                         </div>
                                     </div>
                                 ))}
-                               
-                                {/* Pagination Controls */}
-                                {totalPages > 1 && (
-                                    <div className="container px-0">
-                                        {renderItemCount()}
-                                        <div className='d-block d-lg-flex justify-center mt-4 mb-5 fin'>
-                                            <button
-                                                className="btn mal btn-secondary mx-1 hide"
-                                                disabled={currentPage === 1}
-                                                onClick={() => handlePageChange(1)}
-                                            >
-                                                Pierwsza
-                                            </button>
-                                            <button
-                                                className="btn mal btn-secondary mx-1"
-                                                disabled={currentPage === 1}
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                            >
-                                                Poprzednia
-                                            </button>
-                                            {renderPaginationButtons()}
-                                            <button
-                                                className="btn mal btn-secondary mx-1"
-                                                disabled={currentPage === totalPages}
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                            >
-                                                Następna
-                                            </button>
-                                            <button
-                                                className="btn mal btn-secondary mx-1 hide"
-                                                disabled={currentPage === totalPages}
-                                                onClick={() => handlePageChange(totalPages)}
-                                            >
-                                                Ostatnia
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
+
+                                <PaginationControls
+                                    totalPages={totalPages}
+                                    currentPage={currentPage}
+                                    handlePageChange={handlePageChange}
+                                    renderItemCount={renderItemCount}
+                                    renderPaginationButtons={renderPaginationButtons}
+                                />
 
                                 <MissingDatesInfo missingDates={missingDates} />
 
                             </>
                         ) : (
-                            <div className="no-data-container">
-                                <div className="no-data-content">
-                                    <div className="icon-container">
-                                        <span className="icon">!</span>
-                                    </div>
-                                    <div className="message-container">
-                                        <h3>Nie znaleziono wyników z tego dnia, wybierz inną datę</h3>
-                                    </div>
-                                </div>
-                            </div>
+                            <NoDataContent message="Nie znaleziono wyników z tego dnia, wybierz inną datę" />
                         )}
                     </div>
                 )}
-                <footer className="footer mt-4">
-                    <div className="container">
-                        <span className="text-muted">© Copyright - 2024 Daniel Obuchowicz</span>
-                    </div>
-                </footer>
+                <Footer/>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getExchangeRates } from './CurrencyService';
 import { getAllDatesInRange } from './dateUtils';
 
@@ -8,10 +8,18 @@ export const useCurrencyData = (startDate, endDate, supportedCurrencies) => {
     const [missingDates, setMissingDates] = useState([]);
     const [fetchedData, setFetchedData] = useState(false);
 
+    const isMounted = useRef(true);
+
     useEffect(() => {
+        isMounted.current = true; // Set isMounted to true when the component is mounted
+
         if (startDate && endDate) {
             fetchExchangeRates(startDate, endDate);
         }
+
+        return () => {
+            isMounted.current = false; // Cleanup function to set isMounted to false when component is unmounted
+        };
     }, [startDate, endDate]);
 
     const fetchExchangeRates = async (start, end) => {
@@ -40,15 +48,20 @@ export const useCurrencyData = (startDate, endDate, supportedCurrencies) => {
                 }
             });
 
-            setExchangeRates(validResults);
-            setResultCount(count);
-            setMissingDates(missing);
-            setFetchedData(true);
+            if (isMounted.current) {
+                setExchangeRates(validResults);
+                setResultCount(count);
+                setMissingDates(missing);
+                setFetchedData(true);
+            }
         } catch (error) {
-            setExchangeRates({});
-            setResultCount(0);
-            setMissingDates([]);
-            setFetchedData(true);
+            console.error("Error fetching exchange rates:", error);
+            if (isMounted.current) {
+                setExchangeRates({});
+                setResultCount(0);
+                setMissingDates([]);
+                setFetchedData(true);
+            }
         }
     };
 

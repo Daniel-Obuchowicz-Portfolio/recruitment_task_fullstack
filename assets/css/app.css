@@ -114,6 +114,7 @@ body{
 }
 
 .no-data-content {
+    padding: 4rem 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -199,11 +200,11 @@ body{
     }
 
     .container-custom .jumbotron .col-md-12 .gap-5.block{
-        display: grid!important;
-        grid-template-columns: auto auto auto;
+        display: block!important;
     }
     .container-custom .jumbotron .gap-5.block .btn{
         margin: 5px 0px;
+        width: 100%;
     }
     .container-custom .data-section .result-count{
         margin: 30px !important;
